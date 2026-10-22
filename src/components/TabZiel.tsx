@@ -23,7 +23,7 @@ export function TabZiel({ s, set, r }: { s: PlannerState; set: Setter; r: Planne
           Ansparphase: <strong>{r.years} Jahre</strong> ({r.startYear}–{r.retireYear}) · Entnahmephase:{' '}
           <strong>{r.drawYears} Jahre</strong>
         </div>
-        <div style={{ color: '#78716c', marginTop: 3 }}>
+        <div style={{ color: 'var(--sub)', marginTop: 3 }}>
           {short
             ? 'Kurze Ansparphase, lange Entnahmephase – der Zinseszins hat kaum Zeit zu wirken, und das Kapital muss länger reichen.'
             : 'Jedes Jahr später wirkt doppelt: mehr Zinseszins im Depot und ein Jahr weniger Entnahme.'}

@@ -11,7 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 import { fmtShort } from '../calc';
-import { C } from '../theme';
+import { C, useChartPalette } from '../theme';
 import type { PlannerResult, YearDataPoint } from '../types';
 
 interface Props {
@@ -39,24 +39,25 @@ function HoverReporter({
 }
 
 export function PlannerChart({ r, retireAge, hovered, onHover }: Props) {
+  const P = useChartPalette();
   return (
     <div>
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
           <LineChart data={r.points} margin={{ top: 10, right: 8, bottom: 0, left: 0 }}>
-            <CartesianGrid stroke={C.border} strokeDasharray="3 3" vertical={false} />
+            <CartesianGrid stroke={P['--border']} strokeDasharray="3 3" vertical={false} />
             {r.glideStartYear !== null && r.glideStartYear < r.retireYear && (
-              <ReferenceArea x1={r.glideStartYear} x2={r.retireYear} fill={C.etf} fillOpacity={0.07} stroke="none" />
+              <ReferenceArea x1={r.glideStartYear} x2={r.retireYear} fill={P['--etf']} fillOpacity={0.07} stroke="none" />
             )}
             <XAxis
               dataKey="year"
-              tick={{ fontSize: 11, fill: C.sub }}
+              tick={{ fontSize: 11, fill: P['--sub'] }}
               tickLine={false}
-              axisLine={{ stroke: C.border }}
+              axisLine={{ stroke: P['--border'] }}
               interval="preserveStartEnd"
               minTickGap={36}
             />
-            <YAxis tickFormatter={(v: number) => fmtShort(v)} tick={{ fontSize: 11, fill: C.sub }} tickLine={false} axisLine={false} width={60} />
+            <YAxis tickFormatter={(v: number) => fmtShort(v)} tick={{ fontSize: 11, fill: P['--sub'] }} tickLine={false} axisLine={false} width={60} />
             <Tooltip
               content={(props) => (
                 <HoverReporter
@@ -65,25 +66,25 @@ export function PlannerChart({ r, retireAge, hovered, onHover }: Props) {
                   onHover={onHover}
                 />
               )}
-              cursor={{ stroke: C.sub, strokeDasharray: '3 3' }}
+              cursor={{ stroke: P['--sub'], strokeDasharray: '3 3' }}
             />
             <ReferenceLine
               x={r.retireYear}
-              stroke={C.sub}
+              stroke={P['--sub']}
               strokeDasharray="4 4"
-              label={{ value: `Rente (${retireAge})`, position: 'insideTopRight', fontSize: 11, fill: C.sub }}
+              label={{ value: `Rente (${retireAge})`, position: 'insideTopRight', fontSize: 11, fill: P['--sub'] }}
             />
             {r.crashYear !== null && r.crashYear !== r.retireYear && (
-              <ReferenceLine x={r.crashYear} stroke={C.red} strokeDasharray="2 3" label={{ value: 'Crash', position: 'insideBottomLeft', fontSize: 11, fill: C.red }} />
+              <ReferenceLine x={r.crashYear} stroke={P['--red']} strokeDasharray="2 3" label={{ value: 'Crash', position: 'insideBottomLeft', fontSize: 11, fill: P['--red'] }} />
             )}
-            <Line type="monotone" dataKey="btc" stroke={C.btc} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="etf" stroke={C.etf} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="total" stroke={C.blue} strokeWidth={2.5} dot={false} connectNulls={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="rest" stroke={C.rest} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="btc" stroke={P['--btc']} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="etf" stroke={P['--etf']} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="total" stroke={P['--blue']} strokeWidth={2.5} dot={false} connectNulls={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="rest" stroke={P['--rest']} strokeWidth={2} dot={false} connectNulls={false} isAnimationActive={false} />
             <Line
               type="monotone"
               dataKey="target"
-              stroke={C.target}
+              stroke={P['--target']}
               strokeWidth={1.5}
               strokeDasharray="6 4"
               dot={false}

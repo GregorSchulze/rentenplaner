@@ -10,7 +10,7 @@ createRoot(document.getElementById('root')!).render(
 );
 
 // Offline-Fähigkeit: Service Worker nur im Produktions-Build registrieren
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+if ('serviceWorker' in navigator && import.meta.env.PROD && import.meta.env.MODE !== 'artifact') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {
       /* ohne Offline-Modus weiterlaufen */

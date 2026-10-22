@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { C, TONES, type Tone } from '../theme';
+import { C, TONES, alpha, type Tone } from '../theme';
 
 export function InfoBox({ tone, children }: { tone: Tone; children: ReactNode }) {
   const t = TONES[tone];
@@ -7,7 +7,7 @@ export function InfoBox({ tone, children }: { tone: Tone; children: ReactNode })
     <div
       style={{
         background: t.bg,
-        border: `1px solid ${t.color}33`,
+        border: `1px solid ${alpha(t.color, 20)}`,
         borderLeft: `4px solid ${t.color}`,
         borderRadius: 10,
         padding: '12px 14px',

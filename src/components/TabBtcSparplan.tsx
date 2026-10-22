@@ -27,7 +27,7 @@ export function TabBtcSparplan({ s, set, r }: Props) {
         onChange={(v) => set('btcSave', v)}
       />
 
-      <div style={{ fontSize: 13, color: '#78716c', marginBottom: 8 }}>Szenario (VanEck, Langfrist-Annahmen bis 2050)</div>
+      <div style={{ fontSize: 13, color: 'var(--sub)', marginBottom: 8 }}>Szenario (VanEck, Langfrist-Annahmen bis 2050)</div>
       <div style={{ marginBottom: 18 }}>
         <Segmented
           ariaLabel="Szenario"
@@ -75,7 +75,7 @@ export function TabBtcSparplan({ s, set, r }: Props) {
           {level.label} · Ø {pct(r.btcAvgRate)} p.a.
         </div>
         <div style={{ marginBottom: 3 }}>{level.context}</div>
-        <div style={{ color: '#78716c' }}>{level.note}</div>
+        <div style={{ color: 'var(--sub)' }}>{level.note}</div>
       </InfoBox>
       <Note>
         Zum Vergleich: Kurzfristige Bankprognosen bis 2030 liegen höher (teils 30–50 % p.a.), gelten aber nur für wenige

@@ -37,3 +37,13 @@ npm run build   # Produktions-Build nach dist/
 Jeder Push auf `main` wird per GitHub Actions automatisch auf GitHub Pages veröffentlicht.
 
 Aufbau: `src/calc.ts` enthält die gesamte Rechenlogik, `src/components/` die Oberfläche (React + Recharts, Vite, TypeScript).
+
+## Claude-Seite
+
+Die App läuft zusätzlich als Seite in Claude. Dafür wird alles in eine einzige HTML-Datei gebaut:
+
+```bash
+npx vite build --mode artifact   # → dist-artifact/index.html
+```
+
+Im Artifact-Modus ist der Offline-Service-Worker abgeschaltet, weil er dort nicht unterstützt wird.

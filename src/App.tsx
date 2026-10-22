@@ -66,25 +66,7 @@ export default function App() {
             {overBudget && <span style={{ color: C.red }}> – über deinem Budget von {SAVINGS_BUDGET} €</span>}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            if (window.confirm('Alle Eingaben auf die Standardwerte zurücksetzen?')) setState(DEFAULT_STATE);
-          }}
-          style={{
-            flexShrink: 0,
-            padding: '7px 11px',
-            fontSize: 12.5,
-            color: C.sub,
-            background: C.card,
-            border: `1px solid ${C.border}`,
-            borderRadius: 8,
-            cursor: 'pointer',
-            font: 'inherit',
-          }}
-        >
-          Zurücksetzen
-        </button>
+        <ResetButton onReset={() => setState(DEFAULT_STATE)} />
       </header>
 
       <div style={{ marginBottom: 16, maxWidth: 380 }}>
@@ -147,5 +129,42 @@ export default function App() {
         Keine Anlage- oder Steuerberatung.
       </p>
     </main>
+  );
+}
+
+/** Zurücksetzen mit Bestätigung direkt im Button (Browser-Dialoge sind nicht überall verfügbar). */
+function ResetButton({ onReset }: { onReset: () => void }) {
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (!armed) return;
+    const t = window.setTimeout(() => setArmed(false), 4000);
+    return () => window.clearTimeout(t);
+  }, [armed]);
+  return (
+    <button
+      type="button"
+      id="reset"
+      onClick={() => {
+        if (armed) {
+          onReset();
+          setArmed(false);
+        } else setArmed(true);
+      }}
+      style={{
+        flexShrink: 0,
+        padding: '7px 11px',
+        fontSize: 12.5,
+        fontWeight: armed ? 700 : 500,
+        color: armed ? C.red : C.sub,
+        background: C.card,
+        border: `1px solid ${armed ? C.red : C.border}`,
+        borderRadius: 8,
+        cursor: 'pointer',
+        font: 'inherit',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {armed ? 'Wirklich zurücksetzen?' : 'Zurücksetzen'}
+    </button>
   );
 }

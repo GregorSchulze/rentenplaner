@@ -42,7 +42,7 @@ export function Toggle({ label, description, checked, onChange }: Props) {
           width: 46,
           height: 28,
           borderRadius: 999,
-          background: checked ? C.blue : '#d6d3d1',
+          background: checked ? C.blue : 'var(--switch-off)',
           position: 'relative',
           transition: 'background 0.15s',
         }}
@@ -55,7 +55,7 @@ export function Toggle({ label, description, checked, onChange }: Props) {
             width: 22,
             height: 22,
             borderRadius: '50%',
-            background: '#fff',
+            background: 'var(--knob)',
             boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
             transition: 'left 0.15s',
           }}
@@ -74,7 +74,7 @@ interface SegProps<T extends string> {
 
 export function Segmented<T extends string>({ options, value, onChange, ariaLabel }: SegProps<T>) {
   return (
-    <div role="radiogroup" aria-label={ariaLabel} style={{ display: 'flex', background: '#e7e5e4', borderRadius: 10, padding: 3, gap: 3 }}>
+    <div role="radiogroup" aria-label={ariaLabel} style={{ display: 'flex', background: C.track, borderRadius: 10, padding: 3, gap: 3 }}>
       {options.map((o) => {
         const active = o.value === value;
         return (
@@ -90,7 +90,7 @@ export function Segmented<T extends string>({ options, value, onChange, ariaLabe
               fontSize: 13,
               fontWeight: active ? 700 : 500,
               color: active ? C.text : C.sub,
-              background: active ? '#fff' : 'transparent',
+              background: active ? C.card : 'transparent',
               border: 'none',
               borderRadius: 8,
               boxShadow: active ? '0 1px 2px rgba(0,0,0,0.12)' : 'none',

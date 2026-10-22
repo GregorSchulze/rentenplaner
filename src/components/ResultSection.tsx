@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { fmt, pct } from '../calc';
-import { C, TONES } from '../theme';
+import { C, TONES, alpha } from '../theme';
 import type { PlannerResult, PlannerState } from '../types';
 import { MetricCard } from './MetricCard';
 
@@ -63,7 +63,7 @@ function Badge({ tone, strong, children }: { tone: 'green' | 'red' | 'amber'; st
         fontWeight: strong ? 700 : 600,
         background: t.bg,
         color: t.text,
-        border: `1px solid ${t.color}44`,
+        border: `1px solid ${alpha(t.color, 27)}`,
         lineHeight: 1.4,
       }}
     >
