@@ -13,12 +13,20 @@ Die App ist eine installierbare Web-App (PWA): eigenes Icon, Vollbild, funktioni
 
 ## Funktionen
 
-- Bestand und Sparplan für BTC, ETF-Sparplan, Inflation, Ziel-Zusatzrente
-- Alter heute und Renteneintritt (40–65) frei wählbar
+- Oben immer sichtbar: erreichbare Zusatzrente im Verhältnis zur Wunschrente und wie lange das Geld reicht
+- Eingaben in fünf Bereichen: Ziel, Bitcoin, ETF, Annahmen, Risiko
 - BTC-Szenarien Bär / Basis / Bulle (VanEck-Langfristannahmen: 2 % / 15 % / 29 % p.a.) und optional abnehmende Rendite
-- Crash-Stresstest, optionale Umschichtung von BTC in ETF vor der Rente, optionale Steuerberechnung
-- Anzeige nominal oder in heutiger Kaufkraft
-- Getrennte Entnahmequote (bestimmt das nötige Kapital) und Rendite in der Rente (bestimmt, wie lange das Kapital reicht)
+- Optionale Zusätze: Crash-Stresstest, Umschichtung von BTC in ETF vor der Rente, Steuern
+- Anzeige in heutiger Kaufkraft oder nominal
+- Chart mit Werten als Tabelle
+
+## Barrierefreiheit
+
+- Native Bedienelemente (Regler, Radio-Buttons, Schalter als Kontrollkästchen mit `role="switch"`), Tabs nach ARIA-Muster mit Pfeiltasten
+- Kontraste nach WCAG AA in hellem und dunklem Modus, Unterstützung für „Kontrast erhöhen" und „Bewegung reduzieren"
+- Schriftgrößen in rem, folgen der Schriftgröße im Browser
+- Ergebnis wird für Screenreader angesagt, Chart hat eine Textbeschreibung und eine Tabelle
+- Geprüft mit axe-core (WCAG 2.2 AA): keine Verstöße
 
 ## Annahmen
 

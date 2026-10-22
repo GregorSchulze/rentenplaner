@@ -32,7 +32,7 @@ export const DEFAULT_STATE: PlannerState = {
   glideYears: 10,
   glidePct: 0.8,
   taxOn: false,
-  showReal: false,
+  showReal: true,
 };
 
 /** Langfrist-Annahmen nach VanEck Capital Market Assumptions (Jan. 2026, Horizont bis 2050). */
@@ -45,28 +45,28 @@ export const SCENARIOS = [
 export const RENDITE_LEVELS: RenditeLevel[] = [
   {
     max: 8,
-    tone: 'green',
+    tone: 'ok',
     label: 'Sehr konservativ',
     context: 'Nahe am Bären-Szenario (VanEck: 2 % p.a. bis 2050) bzw. auf Aktienniveau.',
     note: 'Wer so plant, wird von der Realität eher positiv überrascht als enttäuscht.',
   },
   {
     max: 15,
-    tone: 'blue',
+    tone: 'info',
     label: 'Realistisch (Empfehlung)',
     context: 'Entspricht dem Basis-Szenario für sehr lange Horizonte (VanEck: ~15 % p.a. bis 2050).',
     note: 'Solide Planungsgrundlage: unterstellt weiteres Wachstum, aber keine Wiederholung der Vergangenheit.',
   },
   {
     max: 25,
-    tone: 'amber',
+    tone: 'warn',
     label: 'Optimistisch',
     context: 'Über 30 Jahre nur bei anhaltend starker institutioneller und staatlicher Adoption.',
     note: 'Als Hoffnung legitim, als Planungsgrundlage riskant – Lücke einplanen, falls es weniger wird.',
   },
   {
     max: 100,
-    tone: 'red',
+    tone: 'bad',
     label: 'Bullen-Szenario',
     context: 'Entspricht dem Best Case (VanEck-Bulle: 29 % p.a.); historische 80 %+ gelten als nicht fortschreibbar.',
     note: 'Damit zu planen heißt, die Rente auf den günstigsten Fall zu wetten.',
@@ -260,6 +260,8 @@ export function calculate(s: PlannerState): PlannerResult {
     latentTax: latentTax / dR,
     capitalNet: capitalNet / dR,
     rentTargetNominal,
+    rentTargetDisplay: rentTargetNominal / dR,
+    fundedPct: rentTargetNominal > 0 ? achievable / rentTargetNominal : 0,
     neededCapital: neededCapital / dR,
     gap: gap / dR,
     achievable: achievable / dR,

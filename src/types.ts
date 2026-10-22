@@ -63,6 +63,8 @@ export interface PlannerResult {
   latentTax: number;
   capitalNet: number;
   rentTargetNominal: number;
+  rentTargetDisplay: number; // Wunschrente in der gewählten Anzeige (heute oder nominal)
+  fundedPct: number; // erreichbare Rente / Wunschrente
   neededCapital: number;
   gap: number;
   achievable: number;
@@ -76,12 +78,12 @@ export interface PlannerResult {
 
 export interface RenditeLevel {
   max: number;
-  tone: 'green' | 'blue' | 'amber' | 'red';
+  tone: 'ok' | 'info' | 'warn' | 'bad';
   label: string;
   context: string;
   note: string;
 }
 
-export type TabId = 'bestand' | 'btcplan' | 'etfplan' | 'inflation' | 'entnahme' | 'risiko' | 'ziel';
+export type TabId = 'ziel' | 'bitcoin' | 'etf' | 'annahmen' | 'risiko';
 
 export type Setter = <K extends keyof PlannerState>(key: K, value: PlannerState[K]) => void;

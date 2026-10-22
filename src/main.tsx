@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 
+// Sprache für Screenreader und Silbentrennung (auch wenn die Hülle kein lang setzt)
+if (!document.documentElement.lang) document.documentElement.lang = 'de';
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
