@@ -287,18 +287,23 @@ describe('calculate – Entnahmephase', () => {
     expect(mit.depletionAge ?? Infinity).toBeLessThan(ohne.depletionAge ?? 0);
   });
 
-  // Bekannter Fehler: Steht das Kapital auf genau 0, bricht die Schleife ab, ohne depletionAge zu setzen,
-  // und die App meldet „reicht bis Lebensende“. Sobald calculate() das korrigiert, schlagen diese Tests
-  // fehl – dann `it.fails` durch `it` ersetzen.
-  it.fails('ohne Kapital ist das Geld im ersten Rentenmonat aufgebraucht', () => {
+  // Kapital von genau 0 € gilt als aufgebraucht, sobald noch eine Entnahme ansteht
+  // (früher meldete die App hier „reicht bis Lebensende“)
+  it('ohne Kapital ist das Geld im ersten Rentenmonat aufgebraucht', () => {
     const r = calculate(state({ btcAmount: 0, btcSave: 0, etfSave: 0 }));
     expect(r.capitalNet).toBe(0);
     expect(r.depletionAge).toBeCloseTo(60 + 1 / 12, 12);
+    expect(r.restCapital).toBe(0);
   });
 
-  it.fails('Kapital genau 0 nach einer Entnahme: die nächste Entnahme fällt aus', () => {
+  it('Kapital genau 0 nach einer Entnahme: die nächste Entnahme fällt aus', () => {
     const r = calculate(draw(100_000)); // genau 100 Monatsentnahmen
     expect(r.depletionAge).toBeCloseTo(60 + 101 / 12, 12);
+  });
+
+  it('ohne Wunschrente reicht auch Kapital von 0 €', () => {
+    const r = calculate(state({ btcAmount: 0, btcSave: 0, etfSave: 0, rentTarget: 0 }));
+    expect(r.depletionAge).toBeNull();
   });
 });
 

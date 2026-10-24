@@ -214,7 +214,8 @@ export function calculate(s: PlannerState): PlannerResult {
   const drawYears = Math.max(0, s.lifeExp - s.retireAge);
   for (let y = 0; y < drawYears; y++) {
     for (let m = 0; m < 12; m++) {
-      if (capital <= 0) break;
+      // Erst nach dem Aufbrauchen abbrechen: Auch bei genau 0 € Kapital fällt die nächste Entnahme aus
+      if (depletionAge !== null) break;
       const draw = rentTargetNominal * Math.pow(1 + s.inflRate, (y * 12 + m) / 12);
       capital = capital * retM - draw;
       if (capital < 0) {
