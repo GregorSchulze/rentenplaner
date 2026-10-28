@@ -16,17 +16,23 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Nur erfolgreiche Antworten der eigenen Herkunft cachen (keine Fehlerseiten, keine Weiterleitungen nach außen)
+const cacheable = (res) => res.ok && res.type === 'basic';
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
 
-  // Seitenaufrufe: zuerst Netz (für Updates), sonst Cache (offline)
+  // Seitenaufrufe: zuerst Netz (für Updates), sonst Cache (offline).
+  // Nur HTML als App-Hülle speichern, sonst würde z. B. ein direkt geöffnetes Icon sie überschreiben.
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put('./index.html', copy));
+          if (cacheable(res) && (res.headers.get('content-type') || '').includes('text/html')) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put('./index.html', copy));
+          }
           return res;
         })
         .catch(() => caches.match('./index.html')),
@@ -40,7 +46,7 @@ self.addEventListener('fetch', (event) => {
       (hit) =>
         hit ||
         fetch(req).then((res) => {
-          if (res.ok) {
+          if (cacheable(res)) {
             const copy = res.clone();
             caches.open(CACHE).then((c) => c.put(req, copy));
           }
