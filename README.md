@@ -16,6 +16,8 @@ Die App ist eine installierbare Web-App (PWA): eigenes Icon, Vollbild, funktioni
 - Oben immer sichtbar: erreichbare Zusatzrente im Verhältnis zur Wunschrente und wie lange das Geld reicht
 - Eingaben in fünf Bereichen: Ziel, Bitcoin, ETF, Annahmen, Risiko
 - BTC-Szenarien Bär / Basis / Bulle (VanEck-Langfristannahmen: 2 % / 15 % / 29 % p.a.) und optional abnehmende Rendite
+- Gesetzliche Rente aus Rentenpunkten: Punkte aus der Renteninformation eingeben oder aus Arbeitsjahren und Gehalt schätzen lassen; Anzeige von gesetzlicher Rente und Gesamtrente ab 67
+- Altersvorsorgedepot (ab 2027) als Option im ETF-Tab: Teil der ETF-Rate mit staatlicher Zulage, bis 65 gesperrt, danach Auszahlplan
 - Optionale Zusätze: Crash-Stresstest, Umschichtung von BTC in ETF vor der Rente, Steuern
 - Anzeige in heutiger Kaufkraft oder nominal
 - Chart mit Werten als Tabelle
@@ -31,6 +33,8 @@ Die App ist eine installierbare Web-App (PWA): eigenes Icon, Vollbild, funktioni
 ## Annahmen
 
 - Renditen sind effektive Jahresraten, monatlich verzinst; Sparraten am Monatsende.
+- Gesetzliche Rente vereinfacht: Rentenpunkte × aktueller Rentenwert (42,52 € ab 1. Juli 2026), ohne Abschläge ab 67. Punkte pro Jahr = Bruttogehalt ÷ Durchschnittsentgelt (2026 vorläufig 51.944 €), höchstens bis zur Beitragsbemessungsgrenze (101.400 €). Bis zum Renteneintritt wird mit dem heutigen Gehalt weitergerechnet, danach ohne Beiträge; der Rentenwert steigt wie die Inflation. Bruttorente, vor Kranken- und Pflegeversicherung und Steuern. Die gesetzliche Rente wird nur angezeigt und ändert die Rechnung für BTC und ETF nicht.
+- Altersvorsorgedepot vereinfacht: Einzahlungen ab 2027 aus der ETF-Rate (10–150 € im Monat), gleiche Rendite wie beim ETF. Grundzulage 50 Cent je Euro bis 360 € und 25 Cent je Euro bis 1.800 € im Jahr, einmalig 200 € unter 25; Kinderzulage und Sonderausgabenabzug nicht eingerechnet. Auszahlung frühestens mit 65 als Auszahlplan bis mindestens 85, der mit der Inflation steigt. Das Depot zählt nicht zur Zusatzrente ab Renteneintritt, sondern als eigene Auszahlung. Mit Steuern: Auszahlungen voll mit einem wählbaren persönlichen Steuersatz.
 - Steuern vereinfacht: ETF-Gewinne effektiv ~18,5 % (Abgeltungsteuer + Soli, 30 % Teilfreistellung) als latente Steuer zum Rentenbeginn; BTC nach 1 Jahr Haltedauer steuerfrei. Ohne Sparerpauschbetrag, Kirchensteuer und Vorabpauschale.
 - Modellrechnung, keine Anlage- oder Steuerberatung.
 

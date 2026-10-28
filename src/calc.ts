@@ -9,6 +9,22 @@ export const SAVINGS_BUDGET = 200;
 /** Effektive Steuer auf ETF-Gewinne: 25 % Abgeltungsteuer + 5,5 % Soli, 30 % Teilfreistellung (Aktien-ETF), ohne Kirchensteuer. */
 export const ETF_TAX = 0.25 * 1.055 * 0.7;
 
+/** Gesetzliche Rente: aktueller Rentenwert ab 1. Juli 2026, vorläufiges Durchschnittsentgelt und Beitragsbemessungsgrenze 2026. */
+export const RENTENWERT = 42.52;
+export const DURCHSCHNITTSENTGELT = 51_944;
+export const BBG_RV = 101_400;
+/** Regelaltersgrenze ab Jahrgang 1964. */
+export const REGELALTER = 67;
+export const WORK_START_AGE = 15;
+
+/** Altersvorsorgedepot (Altersvorsorgereformgesetz): Start 2027, Auszahlung frühestens mit 65, Auszahlplan mindestens bis 85. */
+export const AV_START_YEAR = 2027;
+export const AV_PAYOUT_AGE = 65;
+export const AV_PLAN_MIN_END = 85;
+export const AV_MAX_MONTHLY = 150; // 1.800 € im Jahr werden gefördert
+export const AV_MIN_YEARLY = 120;
+export const AV_YOUNG_BONUS = 200; // einmalig, wer unter 25 einsteigt
+
 export const DEFAULT_STATE: PlannerState = {
   startAge: 29,
   retireAge: 60,
@@ -21,8 +37,15 @@ export const DEFAULT_STATE: PlannerState = {
   btcRateEnd: 0.08,
   etfSave: 100,
   etfRate: 0.07,
+  avOn: false,
+  avSave: 50,
+  avTaxRate: 0.2,
   inflRate: 0.02,
   rentTarget: 3000,
+  pointsKnown: false,
+  pensionPoints: 0,
+  workYears: 8,
+  grossSalary: 3500,
   withdrawRate: 0.04,
   retireReturn: 0.04,
   crashOn: false,
@@ -85,6 +108,31 @@ export function retireMin(s: PlannerState): number {
   return Math.max(RETIRE_MIN, s.startAge + 1);
 }
 
+export function maxWorkYears(s: PlannerState): number {
+  return Math.max(0, s.startAge - WORK_START_AGE);
+}
+
+/** Rentenpunkte pro Arbeitsjahr: Gehalt im Verhältnis zum Durchschnittsentgelt, höchstens bis zur Beitragsbemessungsgrenze. */
+export function pointsPerYear(monthlyGross: number): number {
+  return Math.min(monthlyGross * 12, BBG_RV) / DURCHSCHNITTSENTGELT;
+}
+
+/** Grundzulage: 50 Cent je Euro bis 360 €, 25 Cent je Euro bis 1.800 €; unter 120 € im Jahr keine Zulage. */
+export function avGrant(yearly: number): number {
+  if (yearly < AV_MIN_YEARLY) return 0;
+  return 0.5 * Math.min(yearly, 360) + 0.25 * Math.max(0, Math.min(yearly, AV_MAX_MONTHLY * 12) - 360);
+}
+
+/** Monatliche Ratenhöhe zu Beginn eines Auszahlplans, der mit der Inflation steigt und das Kapital genau aufbraucht. */
+function growingPayout(capital: number, annualReturn: number, annualGrowth: number, months: number): number {
+  if (months <= 0 || capital <= 0) return 0;
+  const r = monthly(annualReturn);
+  const g = monthly(annualGrowth);
+  let factor = 0;
+  for (let k = 0; k < months; k++) factor += Math.pow(g, k) / Math.pow(r, k + 1);
+  return capital / factor;
+}
+
 /** BTC-Rendite im Jahr y (0-basiert) – konstant oder linear abnehmend. */
 export function btcRateAtYear(s: PlannerState, y: number, years: number): number {
   if (!s.btcDecay || years <= 1) return s.btcRate;
@@ -102,6 +150,11 @@ export function applyChange<K extends keyof PlannerState>(prev: PlannerState, ke
   const years = savingYears(next);
   if (next.crashYearsBefore > years) next.crashYearsBefore = years;
   if (next.glideYears > years) next.glideYears = Math.max(1, years);
+  next.workYears = Math.min(maxWorkYears(next), Math.max(0, Math.round(next.workYears)));
+  next.pensionPoints = Math.min(150, Math.max(0, next.pensionPoints));
+  next.grossSalary = Math.min(20_000, Math.max(0, next.grossSalary));
+  next.avSave = Math.max(0, Math.min(next.avSave, next.etfSave, AV_MAX_MONTHLY));
+  next.avTaxRate = Math.min(0.45, Math.max(0, next.avTaxRate));
   return next;
 }
 
@@ -135,6 +188,14 @@ export function calculate(s: PlannerState): PlannerResult {
   let etfBasis = 0;
   let holdingOnly = btcCurrentValue;
 
+  // Altersvorsorgedepot: eigener Topf aus einem Teil der ETF-Rate, Zulage am Jahresende
+  const avStartMonth = Math.max(0, AV_START_YEAR - START_YEAR) * 12;
+  let av = 0;
+  let avContrib = 0;
+  let avGrantsSum = 0;
+  let avYear = 0;
+  let avBonusPaid = false;
+
   // Kapitalbedarf (nominal) zum Rentenbeginn
   const rentTargetNominal = s.rentTarget * Math.pow(1 + s.inflRate, YEARS);
   const neededCapital = (rentTargetNominal * 12) / s.withdrawRate;
@@ -165,6 +226,7 @@ export function calculate(s: PlannerState): PlannerResult {
     btc *= btcM;
     holdingOnly *= btcM;
     etf *= etfM;
+    av *= etfM;
 
     const inGlide = glideMonths > 0 && m >= glideStart;
     if (inGlide) {
@@ -174,15 +236,30 @@ export function calculate(s: PlannerState): PlannerResult {
       etfBasis += sold;
     }
     // Sparraten am Monatsende; in der Umschichtungsphase fließt auch die BTC-Rate in den ETF
+    const toAv = s.avOn && m >= avStartMonth ? s.avSave : 0;
+    const toEtf = s.etfSave - toAv;
     if (inGlide) {
-      etf += s.btcSave + s.etfSave;
-      etfBasis += s.btcSave + s.etfSave;
+      etf += s.btcSave + toEtf;
+      etfBasis += s.btcSave + toEtf;
     } else {
       btc += s.btcSave;
-      etf += s.etfSave;
-      etfBasis += s.etfSave;
+      etf += toEtf;
+      etfBasis += toEtf;
     }
-    if (m % 12 === 11) pushAnspar(y + 1);
+    av += toAv;
+    avContrib += toAv;
+    avYear += toAv;
+    if (m % 12 === 11) {
+      let grant = avGrant(avYear);
+      if (grant > 0 && !avBonusPaid) {
+        if (s.startAge + y < 25) grant += AV_YOUNG_BONUS;
+        avBonusPaid = true;
+      }
+      av += grant;
+      avGrantsSum += grant;
+      avYear = 0;
+      pushAnspar(y + 1);
+    }
   }
   if (crashAtMonth === N && N >= 0 && s.crashOn) btc *= 1 - s.crashPct;
 
@@ -241,6 +318,27 @@ export function calculate(s: PlannerState): PlannerResult {
   for (let y = 0; y < YEARS; y++) factor *= 1 + btcRateAtYear(s, y, YEARS);
   const btcAvgRate = YEARS > 0 ? Math.pow(factor, 1 / YEARS) - 1 : s.btcRate;
 
+  // ── Gesetzliche Rente: Punkte bis zum Renteneintritt, Auszahlung ohne Abschläge ab der Regelaltersgrenze ──
+  const ppy = pointsPerYear(s.grossSalary);
+  const pointsToday = s.pointsKnown ? s.pensionPoints : s.workYears * ppy;
+  const pointsAtRetire = pointsToday + YEARS * ppy;
+  const pensionAge = Math.max(REGELALTER, s.retireAge);
+  const tP = pensionAge - s.startAge;
+  const statePensionToday = pointsAtRetire * RENTENWERT; // Annahme: Rentenwert steigt wie die Inflation
+  const statePensionNominal = statePensionToday * Math.pow(1 + s.inflRate, tP);
+  // Die Zusatzrente steigt in der Entnahmephase mit der Inflation
+  const extraAtPensionNominal = achievable * Math.pow(1 + s.inflRate, pensionAge - s.retireAge);
+
+  // ── Altersvorsorgedepot: bleibt bis zur Auszahlung angelegt, dann Auszahlplan, der mit der Inflation steigt ──
+  const avPayoutAge = Math.max(AV_PAYOUT_AGE, s.retireAge);
+  const avPlanEndAge = Math.max(AV_PLAN_MIN_END, s.lifeExp);
+  const tAv = avPayoutAge - s.startAge;
+  const avAtPayoutNominal = av * Math.pow(1 + s.etfRate, avPayoutAge - s.retireAge);
+  const avPayoutGross = growingPayout(avAtPayoutNominal, s.retireReturn, s.inflRate, (avPlanEndAge - avPayoutAge) * 12);
+  // Auszahlungen werden voll mit dem persönlichen Steuersatz besteuert (nachgelagert)
+  const avPayoutNominal = avPayoutGross * (s.taxOn ? 1 - s.avTaxRate : 1);
+  const avAtPensionNominal = pensionAge >= avPayoutAge ? avPayoutNominal * Math.pow(1 + s.inflRate, pensionAge - avPayoutAge) : 0;
+
   const dR = deflate(YEARS);
   return {
     years: YEARS,
@@ -271,6 +369,19 @@ export function calculate(s: PlannerState): PlannerResult {
     restCapital: capital / deflate(YEARS + drawYears),
     depletionAge,
     drawYears,
+    pointsPerYear: ppy,
+    pointsToday,
+    pointsAtRetire,
+    pensionYear: START_YEAR + tP,
+    statePensionToday,
+    statePension: statePensionNominal / deflate(tP),
+    totalPension: (statePensionNominal + extraAtPensionNominal + avAtPensionNominal) / deflate(tP),
+    avPayoutAge,
+    avPlanEndAge,
+    avContributions: avContrib / dR,
+    avGrants: avGrantsSum / dR,
+    avAtPayout: avAtPayoutNominal / deflate(tAv),
+    avPayout: avPayoutNominal / deflate(tAv),
   };
 }
 
@@ -290,6 +401,10 @@ export function fmtShort(n: number | null | undefined): string {
     return `${sign}${(a / 1_000_000).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} M €`;
   if (a >= 1000) return `${sign}${Math.round(a / 1000).toLocaleString('de-DE')}k €`;
   return `${sign}${Math.round(a).toLocaleString('de-DE')} €`;
+}
+
+export function fmtPoints(n: number, digits = 1): string {
+  return n.toLocaleString('de-DE', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
 export function pct(rate: number, digits = 1): string {

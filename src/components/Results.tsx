@@ -1,4 +1,4 @@
-import { fmt, pct } from '../calc';
+import { REGELALTER, fmt, pct } from '../calc';
 import type { PlannerResult, PlannerState, Setter } from '../types';
 import { Callout, RadioGroup, Stat } from './Fields';
 
@@ -42,7 +42,7 @@ export function summaryText(s: PlannerState, r: PlannerResult): string {
     r.depletionAge === null
       ? `Das Geld reicht über ${s.lifeExp} hinaus.`
       : `Das Geld ist mit ${Math.floor(r.depletionAge)} aufgebraucht.`;
-  return `Zusatzrente ab ${s.retireAge}: ${fmt(r.achievable)} von ${fmt(r.rentTargetDisplay)} im Monat, ${share} Prozent des Ziels. ${lasts}`;
+  return `Zusatzrente ab ${s.retireAge}: ${fmt(r.achievable)} von ${fmt(r.rentTargetDisplay)} im Monat, ${share} Prozent des Ziels. ${lasts} Dazu ab ${REGELALTER} etwa ${fmt(r.statePension)} gesetzliche Rente brutto.`;
 }
 
 export function Results({ s, set, r }: { s: PlannerState; set: Setter; r: PlannerResult }) {
@@ -85,7 +85,12 @@ export function Results({ s, set, r }: { s: PlannerState; set: Setter; r: Planne
 
       <dl className="stats">
         <Stat label={`BTC mit ${s.retireAge}`} value={fmt(r.btcFinal)} ink="ink-btc" />
-        <Stat label={`ETF mit ${s.retireAge}`} value={fmt(r.etfFinal)} ink="ink-etf" />
+        <Stat
+          label={`ETF mit ${s.retireAge}`}
+          value={fmt(r.etfFinal)}
+          sub={s.avOn ? 'ohne Altersvorsorgedepot' : undefined}
+          ink="ink-etf"
+        />
         <Stat
           label={s.taxOn ? 'Vermögen nach Steuern' : 'Vermögen gesamt'}
           value={fmt(s.taxOn ? r.capitalNet : r.total)}
@@ -103,6 +108,23 @@ export function Results({ s, set, r }: { s: PlannerState; set: Setter; r: Planne
           label={`Wunschrente ${r.retireYear}`}
           value={`${fmt(r.rentTargetNominal)}`}
           sub={`nominal, entspricht ${fmt(s.rentTarget)} heute`}
+        />
+      </dl>
+
+      <dl className="stats">
+        <Stat label={`Gesetzliche Rente ab ${REGELALTER}`} value={fmt(r.statePension)} sub="brutto, aus deinen Rentenpunkten" />
+        {s.avOn && (
+          <Stat
+            label={`Altersvorsorgedepot ab ${r.avPayoutAge}`}
+            value={fmt(r.avPayout)}
+            sub={`${s.taxOn ? 'nach' : 'vor'} Steuern, bis ${r.avPlanEndAge}`}
+          />
+        )}
+        <Stat
+          label={`Gesamtrente ab ${REGELALTER}`}
+          value={fmt(r.totalPension)}
+          sub={s.avOn ? 'gesetzlich, Zusatzrente und Depot' : 'gesetzliche Rente plus Zusatzrente'}
+          ink="ink-accent"
         />
       </dl>
     </section>
