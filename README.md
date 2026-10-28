@@ -43,10 +43,14 @@ Die App ist eine installierbare Web-App (PWA): eigenes Icon, Vollbild, funktioni
 ```bash
 npm install
 npm run dev     # lokale Entwicklung
-npm run build   # Produktions-Build nach dist/
+npm test        # Unit-Tests der Rechenlogik (Vitest)
+npm run lint    # Lint (oxlint)
+npm run build   # Typprüfung und Produktions-Build nach dist/
 ```
 
-Jeder Push auf `main` wird per GitHub Actions automatisch auf GitHub Pages veröffentlicht.
+Die Tests in `src/calc.test.ts` prüfen die Rechenlogik gegen von Hand nachrechenbare Fälle: ETF-Sparplan gegen die Endwertformel, Kapitalbedarf, Kaufkraft-Umrechnung, Crash-Stresstest, Umschichtung, Steuern, Entnahmephase sowie Eingabegrenzen und gespeicherte Werte.
+
+Jeder Pull Request und jeder Push auf `main` durchläuft per GitHub Actions Lint, Typprüfung und Tests. Jeder Push auf `main` wird nach bestandenen Tests automatisch auf GitHub Pages veröffentlicht.
 
 Aufbau: `src/calc.ts` enthält die gesamte Rechenlogik, `src/components/` die Oberfläche (React + Recharts, Vite, TypeScript).
 
