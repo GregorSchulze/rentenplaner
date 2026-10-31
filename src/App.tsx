@@ -111,7 +111,7 @@ export default function App() {
         <div className="panel" role="tabpanel" id={`panel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
           {activeTab === 'ziel' && <PanelZiel s={state} set={set} r={result} />}
           {activeTab === 'bitcoin' && <PanelBitcoin s={state} set={set} r={result} />}
-          {activeTab === 'etf' && <PanelEtf s={state} set={set} />}
+          {activeTab === 'etf' && <PanelEtf s={state} set={set} r={result} />}
           {activeTab === 'annahmen' && <PanelAnnahmen s={state} set={set} r={result} />}
           {activeTab === 'risiko' && <PanelRisiko s={state} set={set} r={result} />}
         </div>

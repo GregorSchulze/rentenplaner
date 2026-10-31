@@ -13,9 +13,17 @@ export interface PlannerState {
   // ETF
   etfSave: number;
   etfRate: number;
+  avOn: boolean; // Teil der ETF-Sparrate ins geförderte Altersvorsorgedepot
+  avSave: number; // davon monatlich ins Altersvorsorgedepot
+  avTaxRate: number; // persönlicher Steuersatz auf die Auszahlungen
   // Inflation & Ziel
   inflRate: number;
   rentTarget: number; // in heutiger Kaufkraft
+  // Gesetzliche Rente
+  pointsKnown: boolean; // Rentenpunkte aus der Renteninformation statt geschätzt
+  pensionPoints: number; // Entgeltpunkte heute, wenn bekannt
+  workYears: number; // bisherige Arbeitsjahre für die Schätzung
+  grossSalary: number; // Bruttogehalt im Monat
   // Rentenphase
   withdrawRate: number; // Entnahmequote (z. B. 4 %-Regel)
   retireReturn: number; // Rendite des Kapitals während der Rente
@@ -74,6 +82,21 @@ export interface PlannerResult {
   restCapital: number;
   depletionAge: number | null;
   drawYears: number;
+  // Gesetzliche Rente
+  pointsPerYear: number;
+  pointsToday: number;
+  pointsAtRetire: number;
+  pensionYear: number;
+  statePensionToday: number; // brutto im Monat, immer in heutiger Kaufkraft
+  statePension: number; // brutto im Monat ab Regelaltersgrenze, in der gewählten Anzeige
+  totalPension: number; // gesetzliche Rente + Zusatzrente + Altersvorsorgedepot ab Regelaltersgrenze, in der gewählten Anzeige
+  // Altersvorsorgedepot (alle Beträge in der gewählten Anzeige)
+  avPayoutAge: number;
+  avPlanEndAge: number;
+  avContributions: number;
+  avGrants: number;
+  avAtPayout: number;
+  avPayout: number; // monatlich zu Beginn der Auszahlung, nach Steuern, wenn Steuern an
 }
 
 export interface RenditeLevel {
